@@ -26,7 +26,7 @@ public class MessageFactory {
     public byte getType() { return type; }
   }
   
-  public WatchMessage makeVibrateMessage(int onMs, int offMs, int count) {
+  public WatchMessage makeVibrate(int onMs, int offMs, int count) {
     checkArgument(onMs >= 0 && onMs < 65536, "onMs must fit in 16 bits");
     checkArgument(offMs >= 0 && offMs < 65536, "offMs must fit in 16 bits");
     checkArgument(count >= 0 && count < 256, "count must fit in 8 bits");
@@ -44,7 +44,7 @@ public class MessageFactory {
     return new WatchMessage(Type.SET_VIBRATE_MODE.getType(), payload);
   }
   
-  public WatchMessage makeTwoRowUpdateMessage(int firstRow, byte[] packedPixels) {
+  public WatchMessage makeTwoRowUpdate(int firstRow, byte[] packedPixels) {
     byte[] payload = new byte[1 + 1 + BYTES_PER_ROW + 1 + BYTES_PER_ROW];
     payload[0] = 0;  // Write two rows to the idle screen.
     payload[1] = (byte) firstRow;
@@ -55,7 +55,7 @@ public class MessageFactory {
     return new WatchMessage(Type.WRITE_BUFFER.getType(), payload);
   }
   
-  public WatchMessage makeUpdateDisplayMessage() {
+  public WatchMessage makeUpdateDisplay() {
     byte[] payload = {
       16,  
     };

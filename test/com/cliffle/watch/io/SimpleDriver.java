@@ -27,14 +27,14 @@ public class SimpleDriver {
     
     System.out.println("Requesting vibration.");
     MessageFactory mf = new MessageFactory();
-    stream.write(mf.makeVibrateMessage(1000, 500, 2));
+    stream.write(mf.makeVibrate(1000, 500, 2));
     Thread.sleep(5000);  // or the watch doesn't hear us.
 
     System.out.println("Nuking the screen.");
     byte[] pixels = new byte[96 * 2 / 8];
     Arrays.fill(pixels, (byte) 0xAA);
-    stream.write(mf.makeTwoRowUpdateMessage(30, pixels));
-    stream.write(mf.makeUpdateDisplayMessage());
+    stream.write(mf.makeTwoRowUpdate(30, pixels));
+    stream.write(mf.makeUpdateDisplay());
 
     Thread.sleep(5000);  // or the watch doesn't hear us.
     stream.close();
