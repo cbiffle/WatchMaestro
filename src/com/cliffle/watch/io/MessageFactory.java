@@ -18,6 +18,7 @@ public class MessageFactory {
   private static final int BYTES_PER_ROW = PIXELS_PER_ROW / PIXELS_PER_BYTE;
   enum Type {
     SET_VIBRATE_MODE(0x23),
+    SET_REAL_TIME_CLOCK(0x26),
     WRITE_BUFFER(0x40),
     UPDATE_DISPLAY(0x43),
     ;
@@ -78,5 +79,40 @@ public class MessageFactory {
       (byte) (newBuffer.getCode() | (copy? (1 << 4) : 0)),
     };
     return new WatchMessage(Type.UPDATE_DISPLAY.getType(), payload);
+  }
+  
+  /**
+   * Creates a message to set the watch's real-time clock.
+   * 
+   * @param year year of CE.
+   * @param month month of Gregorian year: 1-12.
+   * @param dayOfMonth day of month: 1-31
+   * @param dayOfWeek day of week: 0 (Monday) - 6 (Sunday)
+   * @param hour hour of day: 0-24
+   * @param minute minute of hour: 0-59
+   * @param second second of minute: 0-59
+   * @param use24HourTime whether to use 24-hour ("military") time ({@code
+   *     true}) or 12-hour time with AM/PM indicator ({@code false}).
+   * @param dayFirst whether to show dates as DD/MM ({@code true}) or MM/DD
+   *     ({@code false}). 
+   * @return the constructed message.
+   */
+  public WatchMessage makeSetRTC(int year, int month, int dayOfMonth, int dayOfWeek,
+      int hour, int minute, int second, boolean use24HourTime, boolean dayFirst) {
+    byte[] payload = {
+        0,  // Unused padding byte
+        (byte) (year >> 8),  // Yes, year is sent big-endian.
+        (byte) (year),
+        (byte) month,
+        (byte) dayOfMonth,
+        (byte) dayOfWeek,
+        (byte) hour,
+        (byte) minute,
+        (byte) second,
+        (byte) (use24HourTime? 1 : 0),
+        (byte) (dayFirst? 1 : 0),
+    };
+    
+    return new WatchMessage(Type.SET_REAL_TIME_CLOCK.getType(), payload);
   }
 }
