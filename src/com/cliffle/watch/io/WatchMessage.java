@@ -23,6 +23,10 @@ public class WatchMessage {
    * @param payload zero or more bytes of data.
    */
   public WatchMessage(byte type, byte[] payload) {
+    if (payload.length > 250) {
+      throw new IllegalArgumentException("Payload too long: " + payload.length);
+    }
+    
     this.type = type;
     this.payload = payload;
   }
