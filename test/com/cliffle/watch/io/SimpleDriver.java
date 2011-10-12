@@ -3,6 +3,8 @@ package com.cliffle.watch.io;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 
+import com.cliffle.watch.io.MessageFactory.DisplayBuffer;
+
 /**
  * This command-line tool connects to a watch over Bluetooth SPP and sends a
  * message.
@@ -32,9 +34,9 @@ public class SimpleDriver {
 
     System.out.println("Nuking the screen.");
     byte[] pixels = new byte[96 * 2 / 8];
-    Arrays.fill(pixels, (byte) 0xAA);
-    stream.write(mf.makeTwoRowUpdate(30, pixels));
-    stream.write(mf.makeUpdateDisplay());
+    Arrays.fill(pixels, (byte) 0xF0);
+    stream.write(mf.makeDisplayUpdate(30, 2, DisplayBuffer.IDLE, pixels, 0));
+    stream.write(mf.makeUpdateDisplay(DisplayBuffer.IDLE, true));
 
     Thread.sleep(5000);  // or the watch doesn't hear us.
     stream.close();

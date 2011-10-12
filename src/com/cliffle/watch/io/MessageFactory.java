@@ -26,6 +26,17 @@ public class MessageFactory {
     public byte getType() { return type; }
   }
   
+  public enum DisplayBuffer {
+    IDLE(0),
+    APPLICATION(1),
+    NOTIFICATION(2),
+    SCROLL(3),
+    ;
+    private final byte code;
+    DisplayBuffer(int code) { this.code = (byte) code; }
+    public byte getCode() { return code; }
+  }
+  
   public WatchMessage makeVibrate(int onMs, int offMs, int count) {
     checkArgument(onMs >= 0 && onMs < 65536, "onMs must fit in 16 bits");
     checkArgument(offMs >= 0 && offMs < 65536, "offMs must fit in 16 bits");
@@ -44,20 +55,27 @@ public class MessageFactory {
     return new WatchMessage(Type.SET_VIBRATE_MODE.getType(), payload);
   }
   
-  public WatchMessage makeTwoRowUpdate(int firstRow, byte[] packedPixels) {
+  public WatchMessage makeDisplayUpdate(int firstRow, int rowCount, DisplayBuffer buffer,
+      byte[] packedPixels, int start) {
+    checkArgument(firstRow >= 0 && firstRow < 96, "row must be between 0 and 95");
+    checkArgument(rowCount == 1 || rowCount == 2, "rowCount must be 1 or 2");
+    
     byte[] payload = new byte[1 + 1 + BYTES_PER_ROW + 1 + BYTES_PER_ROW];
-    payload[0] = 0;  // Write two rows to the idle screen.
+    payload[0] = buffer.getCode();
+    if (rowCount == 1) payload[0] |= (1 << 4);
     payload[1] = (byte) firstRow;
-    System.arraycopy(packedPixels, 0, payload, 2, BYTES_PER_ROW);
-    payload[2 + BYTES_PER_ROW] = (byte) (firstRow + 1);
-    System.arraycopy(packedPixels, BYTES_PER_ROW, payload, 3 + BYTES_PER_ROW, BYTES_PER_ROW);
+    System.arraycopy(packedPixels, start, payload, 2, BYTES_PER_ROW);
+    if (rowCount == 2) {
+      payload[2 + BYTES_PER_ROW] = (byte) (firstRow + 1);
+      System.arraycopy(packedPixels, start + BYTES_PER_ROW, payload, 3 + BYTES_PER_ROW, BYTES_PER_ROW);
+    }
     
     return new WatchMessage(Type.WRITE_BUFFER.getType(), payload);
   }
   
-  public WatchMessage makeUpdateDisplay() {
+  public WatchMessage makeUpdateDisplay(DisplayBuffer newBuffer, boolean copy) {
     byte[] payload = {
-      16,  
+      (byte) (newBuffer.getCode() | (copy? (1 << 4) : 0)),
     };
     return new WatchMessage(Type.UPDATE_DISPLAY.getType(), payload);
   }
