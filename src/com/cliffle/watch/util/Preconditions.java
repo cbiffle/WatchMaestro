@@ -12,4 +12,8 @@ public class Preconditions {
   public static void checkArgument(boolean condition, String message) {
     if (!condition) throw new IllegalArgumentException(message);
   }
+  
+  public static void checkState(boolean condition, String message) {
+    if (!condition) throw new IllegalStateException(message);
+  }
 }
