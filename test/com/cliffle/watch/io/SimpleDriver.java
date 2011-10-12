@@ -24,30 +24,10 @@ public class SimpleDriver {
     WatchMessageStream stream = new WatchMessageStream(out);
     System.out.println("Connection open.");
     
-    /*
-     * Per the reference implementation: the vibrate message is type 0x23.
-     * It contains three arguments:
-     *  - on-time: a 16-bit measure of the on cycle, in ms.
-     *  - off-time: a 16-bit measure of the off cycle, in ms.
-     *  - cycles: number of cycles to generate.
-     */
-    final int onTime = 1000;
-    final int offTime = 100;
-    final int cycles = 2;
-    
-    byte[] payload = new byte[] {
-        0,  // unused padding byte
-        1,  // vibration enable (0 would cancel any vibration)
-        (byte) onTime,
-        (byte) (onTime >> 8),
-        (byte) offTime,
-        (byte) (offTime >> 8),
-        (byte) cycles,
-    };
-    
     System.out.println("Requesting vibration.");
-    stream.write(new WatchMessage((byte) 0x23, payload));
-    Thread.sleep(5000);
+    MessageFactory mf = new MessageFactory();
+    stream.write(mf.makeVibrateMessage(1000, 500, 2));
+    Thread.sleep(5000);  // or the watch doesn't hear us.
     stream.close();
   }
 }
