@@ -1,7 +1,6 @@
 package com.cliffle.watch.io;
 
 import java.io.FileOutputStream;
-import java.util.Arrays;
 
 import com.cliffle.watch.io.MessageFactory.DisplayBuffer;
 
