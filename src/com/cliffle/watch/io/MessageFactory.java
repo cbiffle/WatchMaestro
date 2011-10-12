@@ -12,8 +12,14 @@ import static com.cliffle.watch.util.Preconditions.*;
  * @author cbiffle
  */
 public class MessageFactory {
+  private static final int PIXELS_PER_ROW = 96;
+  private static final int BITS_PER_PIXEL = 1;
+  private static final int PIXELS_PER_BYTE = 8 / BITS_PER_PIXEL;
+  private static final int BYTES_PER_ROW = PIXELS_PER_ROW / PIXELS_PER_BYTE;
   enum Type {
     SET_VIBRATE_MODE(0x23),
+    WRITE_BUFFER(0x40),
+    UPDATE_DISPLAY(0x43),
     ;
     private final byte type;
     Type(int type) { this.type = (byte) type; }
@@ -36,5 +42,23 @@ public class MessageFactory {
     };
     
     return new WatchMessage(Type.SET_VIBRATE_MODE.getType(), payload);
+  }
+  
+  public WatchMessage makeTwoRowUpdateMessage(int firstRow, byte[] packedPixels) {
+    byte[] payload = new byte[1 + 1 + BYTES_PER_ROW + 1 + BYTES_PER_ROW];
+    payload[0] = 0;  // Write two rows to the idle screen.
+    payload[1] = (byte) firstRow;
+    System.arraycopy(packedPixels, 0, payload, 2, BYTES_PER_ROW);
+    payload[2 + BYTES_PER_ROW] = (byte) (firstRow + 1);
+    System.arraycopy(packedPixels, BYTES_PER_ROW, payload, 3 + BYTES_PER_ROW, BYTES_PER_ROW);
+    
+    return new WatchMessage(Type.WRITE_BUFFER.getType(), payload);
+  }
+  
+  public WatchMessage makeUpdateDisplayMessage() {
+    byte[] payload = {
+      16,  
+    };
+    return new WatchMessage(Type.UPDATE_DISPLAY.getType(), payload);
   }
 }
