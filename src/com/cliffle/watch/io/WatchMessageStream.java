@@ -16,17 +16,16 @@ public class WatchMessageStream {
     for (int j = 0; j < bytes.length; j++) {
       crc = crcStep(crc, bytes[j]);
     }
-    int crc2 = crc - 0xffff0000;
-    return (short) crc2;
+    return crc;
   }
   
   private static short crcStep(short crc, byte c) {
-    for (int i = 7; i >= 0; i--) {
-      boolean c15 = ((crc >> 15 & 1) == 1);
-      boolean bit = ((c >> (7 - i) & 1) == 1);
+    final int BIT15 = 1 << 15;
+    for (int i = 1; i < 0x100; i <<= 1) {
+      boolean c15 = (crc & BIT15) != 0;
+      boolean bit = (c & i) != 0;
       crc <<= 1;
-      if (c15 ^ bit)
-              crc ^= 0x1021; // 0001 0000 0010 0001 (0, 5, 12)
+      if (c15 ^ bit) crc ^= 0x1021;  // 0001 0000 0010 0001 (0, 5, 12)
     }
     return crc;
   }
