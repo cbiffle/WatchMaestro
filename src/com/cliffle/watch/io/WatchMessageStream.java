@@ -15,10 +15,14 @@ public class WatchMessageStream {
   // The encapsulation method restricts messages to 255 bytes.
   private static final int MAX_MESSAGE_SIZE = 255;
   // Messages are headed by an ASCII Start-Of-Frame character.
-  static final int START_OF_FRAME = 0x01;
+  static final byte START_OF_FRAME = 0x01;
   
   public static short computeCrc(WatchMessage message) {
     short crc = (short) 0xFFFF;
+    
+    crc = crcStep(crc, START_OF_FRAME);
+    crc = crcStep(crc, (byte) lengthOnWire(message));
+    
     crc = crcStep(crc, message.getType());
     
     byte[] bytes = message.getPayload();
@@ -28,7 +32,8 @@ public class WatchMessageStream {
     return crc;
   }
   
-  private static short crcStep(short crc, byte c) {
+  // Visible for testing.
+  static short crcStep(short crc, byte c) {
     final int BIT15 = 1 << 15;
     for (int i = 1; i < 0x100; i <<= 1) {
       boolean c15 = (crc & BIT15) != 0;
@@ -65,4 +70,7 @@ public class WatchMessageStream {
     out.flush();
   }
   
+  public void close() throws IOException {
+    out.close();
+  }
 }

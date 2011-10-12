@@ -15,10 +15,20 @@ public class WatchMessageStreamTest {
     WatchMessage input = new WatchMessage((byte) 0xA5,
         new byte[] { 0x01, (byte) 0xDE, 0x55 });
     
-    final short expectedCrc = 0x29AA;  // Computed using reference impl
+    final short expectedCrc = 0x7300;  // Computed using reference impl
     assertEquals(expectedCrc, WatchMessageStream.computeCrc(input));
   }
   
+  @Test public void testCrcStepFromDocumentation() {
+    short crc = (short) 0xFFFF;
+    byte[] input = { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39 };
+    
+    for (byte b : input) {
+      crc = WatchMessageStream.crcStep(crc, b);
+    }
+    
+    assertEquals((short) 0x89F6, crc);
+  }
   @Test public void testLengthOnWire() {
     // Too simple to fail?  Maybe.  But I'm feeling paranoid.
     WatchMessage input = new WatchMessage((byte) 0xA5,
